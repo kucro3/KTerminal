@@ -1,10 +1,12 @@
-package org.kucro3.kterminal.util;
+package org.kucro3.kterminal.rendering;
+
+import org.fusesource.jansi.Ansi;
+import org.kucro3.kterminal.util.Attribute;
+import org.kucro3.kterminal.util.Color;
 
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
-
-import org.fusesource.jansi.Ansi;
 
 public final class Text {	
 	public static Text empty()

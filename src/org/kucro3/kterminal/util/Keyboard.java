@@ -29,74 +29,107 @@ public enum Keyboard {
 	CTRL_Y(25),
 	CTRL_Z(26),
 	ESC(27),
+
+	CAESURA(96, '`'),
+	TILDE(126, '~'),
+	EXCLAMATION_MARK(33, '!'),
+	AT(64, '@'),
+	POUND_SIGN(35, '#'),
+	DOLLAR_SIGN(36, '$'),
+	PERCENT(37, '%'),
+	CARET(94, '^'),
+	AND(38, '&'),
+	STAR(42, '*'),
+	LEFT_BRACKET(40, '('),
+	RIGHT_BRACKET(41, ')'),
+	HYPHEN(45, '-'),
+	UNDERLINE(95, '_'),
+	PLUS(43, '+'),
+	EQUALS(61, '='),
+	OBRACE(123, '{'),
+	EBRACE(125, '}'),
+	LEFT_SQUARE_BRACKET(91, '['),
+	RIGHT_SQUARE_BRACKET(93, ']'),
+	PIPE(124, '|'),
+	BACKSLASH(92,'\\'),
+	COLON(58, ':'),
+	SEMICOLON(59, ';'),
+	DOUBLE_QUOTE(34, '"'),
+	SINGLE_QUOTE(39, '\''),
+	COMMA(44, ','),
+	DOT(46, '.'),
+	SLASH(47, '/'),
+	QUESTION_MARK(63, '?'),
+	LESS_THAN(60, '<'),
+	GREATER_THAN(62, '>'),
+
+	SPACE(32, ' '),
 	
-	SPACE(32),
+	NUM_0(48, '0'),
+	NUM_1(49, '1'),
+	NUM_2(50, '2'),
+	NUM_3(51, '3'),
+	NUM_4(52, '4'),
+	NUM_5(53, '5'),
+	NUM_6(54, '6'),
+	NUM_7(55, '7'),
+	NUM_8(56, '8'),
+	NUM_9(57, '9'),
 	
-	NUM_0(48),
-	NUM_1(49),
-	NUM_2(50),
-	NUM_3(51),
-	NUM_4(52),
-	NUM_5(53),
-	NUM_6(54),
-	NUM_7(55),
-	NUM_8(56),
-	NUM_9(57),
-	
-	WORD_A(65),
-	WORD_B(66),
-	WORD_C(67),
-	WORD_D(68),
-	WORD_E(69),
-	WORD_F(70),
-	WORD_G(71),
-	WORD_H(72),
-	WORD_I(73),
-	WORD_J(74),
-	WORD_K(75),
-	WORD_L(76),
-	WORD_M(77),
-	WORD_N(78),
-	WORD_O(79),
-	WORD_P(80),
-	WORD_Q(81),
-	WORD_R(82),
-	WORD_S(83),
-	WORD_T(84),
-	WORD_U(85),
-	WORD_V(86),
-	WORD_W(87),
-	WORD_X(88),
-	WORD_Y(89),
-	WORD_Z(90),
+	WORD_A(65, 'A'),
+	WORD_B(66, 'B'),
+	WORD_C(67, 'C'),
+	WORD_D(68, 'D'),
+	WORD_E(69, 'E'),
+	WORD_F(70, 'F'),
+	WORD_G(71, 'G'),
+	WORD_H(72, 'H'),
+	WORD_I(73, 'I'),
+	WORD_J(74, 'J'),
+	WORD_K(75, 'K'),
+	WORD_L(76, 'L'),
+	WORD_M(77, 'M'),
+	WORD_N(78, 'N'),
+	WORD_O(79, 'O'),
+	WORD_P(80, 'P'),
+	WORD_Q(81, 'Q'),
+	WORD_R(82, 'R'),
+	WORD_S(83, 'S'),
+	WORD_T(84, 'T'),
+	WORD_U(85, 'U'),
+	WORD_V(86, 'V'),
+	WORD_W(87, 'W'),
+	WORD_X(88, 'X'),
+	WORD_Y(89, 'Y'),
+	WORD_Z(90, 'Z'),
 	
 	
-	WORD_a(97),
-	WORD_b(98),
-	WORD_c(99),
-	WORD_d(100),
-	WORD_e(101),
-	WORD_f(102),
-	WORD_g(103),
-	WORD_h(104),
-	WORD_i(105),
-	WORD_j(106),
-	WORD_k(107),
-	WORD_l(108),
-	WORD_m(109),
-	WORD_n(110),
-	WORD_o(111),
-	WORD_p(112),
-	WORD_q(113),
-	WORD_r(114),
-	WORD_s(115),
-	WORD_t(116),
-	WORD_u(117),
-	WORD_v(118),
-	WORD_w(119),
-	WORD_x(120),
-	WORD_y(121),
-	WORD_z(122),
+	WORD_a(97, 'a'),
+	WORD_b(98, 'b'),
+	WORD_c(99, 'c'),
+	WORD_d(100, 'd'),
+	WORD_e(101, 'e'),
+	WORD_f(102, 'f'),
+	WORD_g(103, 'g'),
+	WORD_h(104, 'h'),
+	WORD_i(105, 'i'),
+	WORD_j(106, 'j'),
+	WORD_k(107, 'k'),
+	WORD_l(108, 'l'),
+	WORD_m(109, 'm'),
+	WORD_n(110, 'n'),
+	WORD_o(111, 'o'),
+	WORD_p(112, 'p'),
+	WORD_q(113, 'q'),
+	WORD_r(114, 'r'),
+	WORD_s(115, 's'),
+	WORD_t(116, 't'),
+	WORD_u(117, 'u'),
+	WORD_v(118, 'v'),
+	WORD_w(119, 'w'),
+	WORD_x(120, 'x'),
+	WORD_y(121, 'y'),
+	WORD_z(122, 'z'),
 	
 	FUNCTION_224(224, true),
 	
@@ -221,12 +254,19 @@ public enum Keyboard {
 	{
 		this(code, null, -1, extended);
 	}
-	
+
+	private Keyboard(int code, char character)
+	{
+		this(code);
+		this.isCharacter = true;
+		this.character = character;
+	}
+
 	private Keyboard(Keyboard root, int extension)
 	{
 		this(-1, root, extension, false);
 	}
-	
+
 	private Keyboard(int code, Keyboard root, int extension, boolean extended)
 	{
 		this.code = code;
@@ -242,6 +282,16 @@ public enum Keyboard {
 		
 		if(extension())
 			root.extensions.put(extension, this);
+	}
+
+	public final boolean isCharacter()
+	{
+		return isCharacter;
+	}
+
+	public final char getCharacter()
+	{
+		return character;
 	}
 	
 	public final boolean hasExt()
@@ -293,7 +343,11 @@ public enum Keyboard {
 	{
 		// For initializing static block
 	}
-	
+
+	private boolean isCharacter;
+
+	private char character;
+
 	private static KeyCollection<Keyboard> a;
 	
 	private final KeyCollection<Keyboard> extensions;

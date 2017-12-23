@@ -1,35 +1,36 @@
-package org.kucro3.kterminal.util;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
+package org.kucro3.kterminal.rendering;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.internal.WindowsSupport;
 
-public class Window {
-	public Window()
+import java.io.PrintStream;
+import java.util.*;
+import java.util.function.Supplier;
+
+public class Renderer {
+	public Renderer()
 	{
-		this(() -> WindowsSupport.getWindowsTerminalWidth() - 1, WindowsSupport::getWindowsTerminalHeight);
+		this(null, () -> WindowsSupport.getWindowsTerminalWidth() - 1, WindowsSupport::getWindowsTerminalHeight);
 	}
 	
-	public Window(int width, int height)
+	public Renderer(int width, int height)
 	{
-		this(() -> width, () -> height);
+		this(null, () -> width, () -> height);
 	}
-	
-	Window(Supplier<Integer> height)
+
+	public Renderer(Supplier<Integer> width, Supplier<Integer> height)
 	{
-		this(() -> WindowsSupport.getWindowsTerminalWidth() - 1, height);
+		this(null, width, height);
 	}
-	
-	Window(Supplier<Integer> width, Supplier<Integer> height)
+
+	Renderer(Renderer upper, Supplier<Integer> height)
 	{
+		this(upper, () -> WindowsSupport.getWindowsTerminalWidth() - 1, height);
+	}
+
+	Renderer(Renderer upper, Supplier<Integer> width, Supplier<Integer> height)
+	{
+		this.upper = upper;
 		this.width = width;
 		this.height = height;
 		this.shades = new ArrayList<>();
@@ -38,6 +39,12 @@ public class Window {
 	public void addLine(Line line)
 	{
 		lines.add(line);
+	}
+
+	public void ensureLines(int count)
+	{
+		for(int i = lines.size(); i <= count; i++)
+			lines.add(new Line());
 	}
 	
 	public void clearLines()
@@ -129,7 +136,17 @@ public class Window {
 	{
 		return addLine(index).setText(text);
 	}
-	
+
+	public Supplier<Integer> getWidthSupplier()
+	{
+		return width;
+	}
+
+	public Supplier<Integer> getHeightSupplier()
+	{
+		return height;
+	}
+
 	public int getWidth()
 	{
 		return width.get();
@@ -140,70 +157,70 @@ public class Window {
 		return height.get();
 	}
 	
-	public Window addShade(int startHeight)
+	public Renderer addShade(int startHeight)
 	{
-		final WindowRef ref = new WindowRef();
-		Window window = (ref.window = new Window(width, () -> ref.window.totalLines()));
+		final RendererRef ref = new RendererRef();
+		Renderer window = (ref.window = new Renderer(this, width, () -> ref.window.totalLines()));
 		window.startHeight = () -> startHeight;
 		shades.add(window);
 		return window;
 	}
 	
-	public Window addShade(int startHeight, int height)
+	public Renderer addShade(int startHeight, int height)
 	{
 		return addShade(startHeight, () -> height);
 	}
 	
-	public Window addShade(int startHeight, int height, int startWidth)
+	public Renderer addShade(int startHeight, int height, int startWidth)
 	{
 		return addShade(startHeight, () -> height, startWidth);
 	}
 	
-	public Window addShade(int startHeight, Supplier<Integer> height, int startWidth)
+	public Renderer addShade(int startHeight, Supplier<Integer> height, int startWidth)
 	{
-		Window window = addShade(startHeight, height);
+		Renderer window = addShade(startHeight, height);
 		window.startWidth = () -> startWidth;
 		return window;
 	}
 	
-	public Window addShade(int startHeight, int height, int startWidth, int width)
+	public Renderer addShade(int startHeight, int height, int startWidth, int width)
 	{
 		return addShade(startHeight, () -> height, startWidth, () -> width);
 	}
 	
-	public Window addShade(int startHeight, Supplier<Integer> height, int startWidth, Supplier<Integer> width)
+	public Renderer addShade(int startHeight, Supplier<Integer> height, int startWidth, Supplier<Integer> width)
 	{
 		return addShade(() -> startHeight, height, () -> startWidth, width);
 	}
 	
-	public Window addShade(Supplier<Integer> startHeight, Supplier<Integer> height, Supplier<Integer> startWidth, Supplier<Integer> width)
+	public Renderer addShade(Supplier<Integer> startHeight, Supplier<Integer> height, Supplier<Integer> startWidth, Supplier<Integer> width)
 	{
-		Window window = new Window(width, height);
+		Renderer window = new Renderer(this, width, height);
 		window.startWidth = startWidth;
 		window.startHeight = startHeight;
 		shades.add(window);
 		return window;
 	}
 	
-	public Window addShade(int startHeight, Supplier<Integer> height)
+	public Renderer addShade(int startHeight, Supplier<Integer> height)
 	{
 		return addShade(() -> startHeight, height);
 	}
 	
-	public Window addShade(Supplier<Integer> startHeight, Supplier<Integer> height)
+	public Renderer addShade(Supplier<Integer> startHeight, Supplier<Integer> height)
 	{
-		Window window = new Window(width, height);
+		Renderer window = new Renderer(this, width, height);
 		window.startHeight = Objects.requireNonNull(startHeight);
 		shades.add(window);
 		return window;
 	}
 	
-	public boolean removeShade(Window window)
+	public boolean removeShade(Renderer window)
 	{
 		return shades.remove(window);
 	}
 	
-	public boolean swapShade(Window shade0, Window shade1)
+	public boolean swapShade(Renderer shade0, Renderer shade1)
 	{
 		if(shade0 == shade1)
 			return true;
@@ -221,17 +238,31 @@ public class Window {
 		
 		return true;
 	}
+
+	public void setUpdateCallback(UpdateCallback callback)
+	{
+		this.callback = callback;
+	}
+
+	public void update()
+	{
+		if(this.callback != null)
+			callback.callback();
+	}
 	
 	public void display(PrintStream os)
 	{
-		os.print(render());
+		if(upper != null)
+			upper.display(os);
+		else
+			os.print(render());
 	}
 	
 	public int visibleLines()
 	{
 		return Math.min(height.get(), totalLines() - pointer);
 	}
-	
+
 	public List<Line> renderLines()
 	{
 		int height = this.height.get();
@@ -255,7 +286,7 @@ public class Window {
 			}
 		
 		// shades
-		for(Window shade : shades)
+		for(Renderer shade : shades)
 		{
 			List<Line> lines = shade.renderLines();
 			int startHeight = shade.startHeight.get();
@@ -347,12 +378,14 @@ public class Window {
 		sb.append(lines.get(i).toString());
 		return sb.toString();
 	}
+
+	protected UpdateCallback callback;
 	
 	protected Supplier<Integer> startWidth = () -> 0;
 	
 	protected Supplier<Integer> startHeight = () -> 0;
 	
-	private final ArrayList<Window> shades;
+	private final ArrayList<Renderer> shades;
 	
 	private final Supplier<Integer> width;
 	
@@ -361,9 +394,16 @@ public class Window {
 	int pointer;
 	
 	private final LinkedList<Line> lines = new LinkedList<>();
+
+	private final Renderer upper;
 	
-	private static class WindowRef
+	private static class RendererRef
 	{
-		Window window;
+		Renderer window;
+	}
+
+	public interface UpdateCallback
+	{
+		public void callback();
 	}
 }

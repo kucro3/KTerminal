@@ -1,9 +1,9 @@
-package org.kucro3.kterminal.util;
+package org.kucro3.kterminal.rendering;
+
+import org.kucro3.kterminal.KTerminal;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import org.kucro3.kterminal.KTerminal;
 
 public class Line {
 	public Line()
@@ -26,32 +26,32 @@ public class Line {
 		this.text = Text.empty();
 		return this;
 	}
-	
+
 	public Line setText(Text text)
 	{
 		this.text = Objects.requireNonNull(text);
 		return this;
 	}
-	
+
 	public Text getText()
 	{
 		return this.text;
 	}
-	
+
 	public Line copy()
 	{
 		return new Line(width).setText(text);
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		
+
 		int totalLength = 0;
 		int width = this.width.get();
 		Text text = this.text;
-		
+
 		if(width > 0)
 			do {
 				int nextTotal = totalLength + text.contentLength();
@@ -72,10 +72,10 @@ public class Line {
 					sb.append(text.getString());
 				}
 			} while((text = text.next().orElse(null)) != null);
-		
+
 		return sb.toString();
 	}
-	
+
 	Text text = Text.empty();
 	
 	private final Supplier<Integer> width;
