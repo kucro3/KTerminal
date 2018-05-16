@@ -26,9 +26,13 @@ public class Layer {
     {
         if(this.component != null)
             this.component.unload(renderer);
+
         this.component = component;
+
         if(component != null)
             component.load(renderer);
+        else
+            renderer.clearLines();
     }
 
     public Renderer getRenderer()
@@ -50,8 +54,6 @@ public class Layer {
     {
         return append(new Layer(renderer.addShade(startingHeight, renderer.getHeightSupplier(), startingWidth, renderer.getWidthSupplier())));
     }
-
-
 
     Layer append(Layer layer)
     {
